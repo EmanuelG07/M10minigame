@@ -1,0 +1,91 @@
+html,body{
+  height:100%;
+  margin:0;
+  background:#222;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+canvas{
+  image-rendering:pixelated;
+  border:6px solid #444;
+  background:#4aa3d8;
+}
+
+#battle-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+#battle-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hidden { display: none; }
+
+#battle-box {
+  background: #fff;
+  border: 4px solid #000;
+  padding: 20px 20px 10px 20px;
+  border-radius: 12px;
+  width: 300px;
+  text-align: center;
+  font-family: 'Verdana';
+  font-size: 18px;
+  animation: popin 0.3s ease;
+}
+
+@keyframes popin {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+#battle-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+#battle-content img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border: 2px solid #000;
+  border-radius: 8px;
+}
+
+#battle-menu {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+#battle-menu button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #eee;
+  transition: all 0.2s ease;
+}
+
+#battle-menu button:hover {
+  background: #ddd;
+  transform: scale(1.05);
+}
