@@ -131,6 +131,51 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById("catch-btn").addEventListener("click",()=>catchWild(0.5));
   document.getElementById("run-btn").addEventListener("click",()=>runWild());
 
+  // --- add/replace with two-player movement & drawing ---
+
+  // Two players: player 1 uses WASD, player 2 uses Arrow keys
+  const players = [
+    { id: 1, x: 60,  y: 140, size: 28, color: '#2b8cff', keys: { up: 'w', left: 'a', down: 's', right: 'd' } },
+    { id: 2, x: 420, y: 140, size: 28, color: '#ff4b4b', keys: { up: 'ArrowUp', left: 'ArrowLeft', down: 'ArrowDown', right: 'ArrowRight' } }
+  ];
+
+  const speed = 2.4;
+  const keysDown = {};
+
+  // global key tracking for both players
+  window.addEventListener('keydown', e => { keysDown[e.key] = true; });
+  window.addEventListener('keyup',   e => { keysDown[e.key] = false; });
+
+  // call this from your existing game update loop (replace single-player move code)
+  function updatePlayers() {
+    players.forEach(p => {
+      if (keysDown[p.keys.left])  p.x -= speed;
+      if (keysDown[p.keys.right]) p.x += speed;
+      if (keysDown[p.keys.up])    p.y -= speed;
+      if (keysDown[p.keys.down])  p.y += speed;
+
+      // clamp to canvas bounds
+      p.x = Math.max(0, Math.min(canvas.width - p.size, p.x));
+      p.y = Math.max(0, Math.min(canvas.height - p.size, p.y));
+    });
+  }
+
+  // call this from your existing draw/render step (replace single-player draw code)
+  function drawPlayers() {
+    players.forEach(p => {
+      // body
+      ctx.fillStyle = p.color;
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+      // border
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+      // small facing indicator (eye) - optional visual flair
+      ctx.fillStyle = '#000';
+      ctx.fillRect(Math.round(p.x + p.size/2 - 2), Math.round(p.y + p.size/2 - 2), 4, 4);
+    });
+  }
+
   function update(dt){
     if(inBattle) return;
     if(encounterCooldown>0) encounterCooldown-=dt;
@@ -149,6 +194,8 @@ window.addEventListener('DOMContentLoaded', () => {
     if(canWalkTo(player.x,nextY)) player.y=nextY;
 
     if(player.vx || player.vy) checkEncounter(player.x,player.y);
+
+    updatePlayers();
   }
 
   function draw(){
@@ -177,6 +224,8 @@ window.addEventListener('DOMContentLoaded', () => {
     ctx.fillStyle='#fff';
     ctx.font='14px monospace';
     ctx.fillText('Mini Pokémon — arrows or WASD',14,32);
+
+    drawPlayers();
   }
 
   function loop(ts){

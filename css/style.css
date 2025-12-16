@@ -1,30 +1,76 @@
 html,body{
   height:100%;
   margin:0;
-  background:#222;
+  background:#111; /* darker for contrast */
   display:flex;
   align-items:center;
   justify-content:center;
+  font-family: "Courier New", Courier, monospace;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  color: #111;
+  letter-spacing: 0.6px;
 }
 
+/* palette (retro) */
+:root{
+  --screen-bg: #9bd3f0; /* light cyan for water/sky */
+  --ground: #d6caa6;
+  --grass: #8bd14f;
+  --tree: #1e7a2e;
+  --panel-bg: #f6eecf;
+  --panel-dark: #c9b187;
+  --accent: #222;
+  --pixel-border: #000;
+}
+
+/* Canvas becomes the "handheld screen" with bezel */
 canvas{
-  image-rendering:pixelated;
-  border:6px solid #444;
-  background:#4aa3d8;
+  image-rendering: pixelated;
+  border: 10px solid var(--pixel-border);
+  border-radius: 8px;
+  background: var(--screen-bg);
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.35),    /* drop shadow */
+    inset 0 2px 0 rgba(255,255,255,0.06), /* subtle top shine */
+    inset 0 -6px 0 rgba(0,0,0,0.06); /* inner bottom */
+  width: 512px;
+  height: 384px;
+  image-rendering: crisp-edges;
+  position: relative;
 }
 
+/* scanlines for vintage look */
+body::after{
+  content: "";
+  position: absolute;
+  width: 512px;
+  height: 384px;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background-image: linear-gradient(rgba(0,0,0,0.04) 50%, rgba(255,255,255,0.01) 51%);
+  background-size: 100% 4px;
+  border-radius: 4px;
+  transform: translateZ(0);
+  filter: contrast(1.05) saturate(0.98);
+}
+
+/* Tiny HUD names on top-left / top-right of screen (pure CSS; requires HTML only if you add elements later) */
+/* ...existing code... */
+
+/* Battle overlay: transform into Pokémon-style menu */
 #battle-overlay {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(2px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.16s linear;
+  font-family: "Courier New", Courier, monospace;
 }
 
 #battle-overlay.show {
@@ -32,60 +78,88 @@ canvas{
   pointer-events: auto;
 }
 
-.hidden { display: none; }
-
+/* retro box with thick pixel border and two-tone panel */
 #battle-box {
-  background: #fff;
-  border: 4px solid #000;
-  padding: 20px 20px 10px 20px;
-  border-radius: 12px;
-  width: 300px;
-  text-align: center;
-  font-family: 'Verdana';
-  font-size: 18px;
-  animation: popin 0.3s ease;
-}
-
-@keyframes popin {
-  from { transform: scale(0.7); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-#battle-content {
-  display: flex;
+  background: linear-gradient(#fffaf0, var(--panel-bg));
+  border: 6px solid var(--pixel-border);
+  padding: 10px;
+  border-radius: 4px;
+  width: 360px;
+  text-align: left;
+  font-size: 13px;
+  color: #060606;
+  box-shadow: -6px 6px 0 rgba(0,0,0,0.12);
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
   align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
 }
 
-#battle-content img {
+/* tiny avatar box */
+#battle-content {
+  display: contents;
+}
+
+#battle-content img, #battle-content .avatar {
   width: 64px;
   height: 64px;
   object-fit: contain;
-  border: 2px solid #000;
-  border-radius: 8px;
+  border: 3px solid var(--pixel-border);
+  background: linear-gradient(#fff, #eee);
 }
 
+/* message text box that looks like the old message window */
+#battle-text {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 12px,
+    rgba(0,0,0,0.01) 12px,
+    rgba(0,0,0,0.01) 13px
+  );
+  padding: 10px;
+  border: 3px solid var(--pixel-border);
+  background-color: #fff;
+  line-height: 1.25;
+  font-size: 13px;
+  min-height: 56px;
+}
+
+/* menu buttons like old choices */
 #battle-menu {
   display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
+  gap: 8px;
+  margin-top: 8px;
+  grid-column: 1 / -1;
+  justify-content: center;
 }
 
 #battle-menu button {
-  flex: 1;
-  margin: 0 5px;
-  padding: 8px;
-  font-size: 14px;
+  padding: 6px 10px;
+  background: linear-gradient(#fff,#e8e8e8);
+  border: 3px solid var(--pixel-border);
+  box-shadow: none;
   font-weight: bold;
+  font-size: 12px;
   cursor: pointer;
-  border: 2px solid #000;
-  border-radius: 6px;
-  background: #eee;
-  transition: all 0.2s ease;
+  border-radius: 2px;
+  min-width: 80px;
 }
 
-#battle-menu button:hover {
-  background: #ddd;
-  transform: scale(1.05);
+/* hover/tap state: invert to look pressed */
+#battle-menu button:hover,
+#battle-menu button:active {
+  transform: translateY(1px);
+  background: linear-gradient(#e8e8e8,#fff);
 }
+
+/* small responsive safe area for canvas and overlay */
+@media (max-width:640px) {
+  canvas { transform: scale(0.9); }
+  #battle-box { width: 300px; font-size: 12px; }
+}
+
+/* keep hidden utility */
+.hidden { display: none; }
+
+/* fine-tune a few colors so the canvas-drawn map matches the CSS palette */
